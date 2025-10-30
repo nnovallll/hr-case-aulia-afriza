@@ -1,15 +1,15 @@
 import os
-from sqlalchemy import create_engine
 from dotenv import load_dotenv
 
+# Load semua variabel dari file .env
 load_dotenv()
 
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT")
-DB_NAME = os.getenv("DB_NAME")
-DB_USER = os.getenv("DB_USER")
-DB_PASS = os.getenv("DB_PASS")
+# Akses variabel lingkungan
+DATABASE_URL = os.getenv("DATABASE_URL")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-DATABASE_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-
-engine = create_engine(DATABASE_URL)
+# Validasi awal
+if not DATABASE_URL:
+    raise ValueError("❌ DATABASE_URL not found in environment variables.")
+if not OPENROUTER_API_KEY:
+    print("⚠️ Warning: OPENROUTER_API_KEY not found (AI features will be disabled).")
