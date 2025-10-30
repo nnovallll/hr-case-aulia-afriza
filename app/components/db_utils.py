@@ -1,17 +1,8 @@
-import pandas as pd
-from sqlalchemy import create_engine, text
-from config import DATABASE_URL
+import streamlit as st
+from supabase import create_client, Client
 
-def get_engine():
-    return create_engine(DATABASE_URL)
-
-def run_query(sql_path, params=None):
-    with open(sql_path, "r", encoding="utf-8") as f:
-        query = f.read()
-    if params:
-        for k, v in params.items():
-            query = query.replace(f":{k}", f"'{v}'")
-    engine = get_engine()
-    with engine.connect() as conn:
-        df = pd.read_sql(text(query), conn)
-    return df
+@st.cache_resource
+def get_supabase_client() -> Client:
+    url = st.secrets["supabase"]["url"]
+    key = st.secrets["supabase"]["key"]
+    return create_client(url, key)
