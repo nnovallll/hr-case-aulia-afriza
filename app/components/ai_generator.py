@@ -1,42 +1,38 @@
+import streamlit as st
 import requests
-from config import OPENROUTER_API_KEY
 
-def generate_ai_job_profile(role_name, role_purpose):
-    if not OPENROUTER_API_KEY:
-        return "⚠️ AI generator unavailable: missing API key."
+@st.cache_resource
+def get_ai_headers():
+    provider = st.secrets["ai"]["provider"]
+    api_key = st.secrets["ai"]["api_key"]
+    if provider == "openrouter":
+        return {
+            "Authorization": f"Bearer {api_key}",
+            "HTTP-Referer": "https://openrouter.ai/",
+            "X-Title": "Talent Match Intelligence"
+        }
+    return {"Authorization": f"Bearer {api_key}"}
 
-    prompt = f"""
-    Generate a concise job profile for {role_name}.
-    Purpose: {role_purpose}.
-    Return in this format:
+def generate_ai_text(prompt, model=None):
+    """Kirim prompt ke model AI (OpenRouter default)."""
+    if model is None:
+        model = st.secrets["ai"]["model"]
+    headers = get_ai_headers()
+    url = "https://openrouter.ai/api/v1/chat/completions"
 
-    **Job Requirements:**
-    - ...
-
-    **Key Responsibilities:**
-    - ...
-
-    **Personality Fit:**
-    - ...
-    """
-    headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-        "HTTP-Referer": "http://localhost:8501",
-        "X-Title": "Talent Match Intelligence",
-        "Content-Type": "application/json"
-    }
     payload = {
-        "model": "openai/gpt-oss-20b:free",
-        "messages": [{"role": "user", "content": prompt}],
-        "max_tokens": 700,
-        "temperature": 0.7
+        "model": model,
+        "messages": [
+            {"role": "system", "content": "You are an HR data analyst assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.7,
     }
-    try:
-        response = requests.post("https://openrouter.ai/api/v1/chat/completions",
-                                 headers=headers, json=payload, timeout=60)
-        response.raise_for_status()
-        return response.json()["choices"][0]["message"]["content"]
-    except Exception as e:
-        return f"⚠️ AI request failed: {e}"
-    
 
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=60)
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"].strip()
+    except Exception as e:
+        return f"⚠️ Gagal generate AI response: {e}"
