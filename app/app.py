@@ -1,12 +1,12 @@
 import streamlit as st
 from supabase import create_client
 
-# --- Connect Supabase client ---
+# --- Connect Supabase ---
 url = st.secrets["supabase"]["url"]
 key = st.secrets["supabase"]["key"]
 supabase = create_client(url, key)
 
-# --- Streamlit Sidebar Navigation ---
+# --- Sidebar Navigation ---
 st.sidebar.title("📂 Menu Navigasi")
 page = st.sidebar.radio(
     "Pilih Halaman:",
@@ -14,7 +14,6 @@ page = st.sidebar.radio(
 )
 
 st.title("🧠 Talent Match Intelligence")
-
 st.markdown("""
 Selamat datang di sistem Talent Match Intelligence.  
 Gunakan menu di sidebar untuk:
@@ -23,7 +22,6 @@ Gunakan menu di sidebar untuk:
 3️⃣ Menjelajahi insight AI (Step 3)
 """)
 
-# --- Routing sederhana ke masing-masing page ---
 if page == "Benchmark Form":
     st.switch_page("pages/01_Benchmark_Form.py")
 elif page == "Benchmark Dashboard":
