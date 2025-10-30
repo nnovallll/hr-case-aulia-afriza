@@ -6,4 +6,5 @@ plotly
 openai
 python-dotenv
 supabase
+requests
 
