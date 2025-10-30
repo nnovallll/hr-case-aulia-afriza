@@ -3,17 +3,12 @@ import pandas as pd
 from supabase import create_client
 from components.ai_generator import generate_ai_text
 
-# --- Connect Supabase ---
 url = st.secrets["supabase"]["url"]
 key = st.secrets["supabase"]["key"]
 supabase = create_client(url, key)
 
-st.title("🤖 Step 3 : Talent Insights")
-
-st.markdown("""
-Halaman ini menampilkan insight AI berdasarkan hasil *Talent Match*.
-Masukkan Job Vacancy ID untuk melihat ranking dan deskripsi kandidat terbaik.
-""")
+st.title("🤖 Talent Insights")
+st.markdown("Analisis AI berdasarkan hasil Talent Matching.")
 
 job_vacancy_id = st.text_input("Masukkan Job Vacancy ID:", "J001")
 
@@ -43,5 +38,5 @@ if st.button("🔍 Generate Insights"):
             """
 
             ai_text = generate_ai_text(summary_prompt)
-            st.subheader("🧠 AI Insight:")
+            st.subheader("🧠 AI Insight")
             st.write(ai_text)
