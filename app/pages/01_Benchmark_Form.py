@@ -31,7 +31,7 @@ if not df_employees.empty:
     grade = st.text_input("Grade", "G5")
     role_purpose = st.text_area("Role Purpose", "Analisis dan visualisasi data HR untuk mendukung keputusan strategis.")
 
-   if st.button("💾 Simpan Benchmark"):
+    if st.button("💾 Simpan Benchmark"):
     if selected:
         ids = [x.split(" - ")[0] for x in selected]
         record = {
@@ -43,13 +43,12 @@ if not df_employees.empty:
         }
 
         try:
-            result = supabase.table("talent_benchmarks").insert(record).execute()
+            result = supabase.table("talent_benchmarks").upsert(record).execute()
             if result.data:
                 st.success("✅ Benchmark berhasil disimpan ke database Supabase!")
             else:
                 st.warning("⚠️ Insert tidak berhasil, periksa data input.")
         except Exception as e:
             st.error(f"🚨 Gagal menyimpan benchmark: {e}")
-    else:
+        else:
         st.warning("⚠️ Pilih minimal satu benchmark employee terlebih dahulu.")
-
