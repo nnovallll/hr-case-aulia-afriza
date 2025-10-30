@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from supabase import create_client
+from components.ai_generator import generate_ai_text
 
 # --- Supabase Connection ---
 url = st.secrets["supabase"]["url"]
@@ -14,7 +15,6 @@ Gunakan halaman ini untuk membuat dan menyimpan benchmark role baru.
 Silakan pilih employee dengan rating tinggi (5) untuk dijadikan acuan.
 """)
 
-# --- Ambil daftar employees ---
 with st.spinner("Mengambil daftar karyawan..."):
     data = supabase.table("employees").select("employee_id, fullname").execute()
     df_employees = pd.DataFrame(data.data)
@@ -55,5 +55,18 @@ if not df_employees.empty:
                 st.error(f"🚨 Gagal menyimpan benchmark: {e}")
         else:
             st.warning("⚠️ Pilih minimal satu benchmark employee terlebih dahulu.")
+
+    # --- AI Summary Generator ---
+    if st.button("✨ Generate Job Summary (AI)"):
+        prompt = f"""
+        Anda adalah HR Analyst. Buatkan ringkasan profesional tentang role berikut:
+        - Role: {role_name}
+        - Grade: {grade}
+        - Purpose: {role_purpose}
+        Jelaskan kompetensi utama yang dibutuhkan dan karakteristik karyawan ideal.
+        """
+        ai_summary = generate_ai_text(prompt)
+        st.subheader("🧠 AI-Generated Job Summary")
+        st.write(ai_summary)
 else:
     st.error("Gagal mengambil data employees dari Supabase.")
