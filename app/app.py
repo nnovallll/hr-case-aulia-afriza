@@ -1,13 +1,20 @@
 import streamlit as st
-from components.db_utils import get_engine
+from supabase import create_client
 
-st.set_page_config(
-    page_title="Talent Match Intelligence",
-    page_icon="🧠",
-    layout="wide"
+# --- Connect Supabase client ---
+url = st.secrets["supabase"]["url"]
+key = st.secrets["supabase"]["key"]
+supabase = create_client(url, key)
+
+# --- Streamlit Sidebar Navigation ---
+st.sidebar.title("📂 Menu Navigasi")
+page = st.sidebar.radio(
+    "Pilih Halaman:",
+    ["Benchmark Form", "Benchmark Dashboard", "Talent Insights"]
 )
 
 st.title("🧠 Talent Match Intelligence")
+
 st.markdown("""
 Selamat datang di sistem Talent Match Intelligence.  
 Gunakan menu di sidebar untuk:
@@ -16,7 +23,10 @@ Gunakan menu di sidebar untuk:
 3️⃣ Menjelajahi insight AI (Step 3)
 """)
 
-# Tes koneksi DB
-engine = get_engine()
-with engine.connect() as conn:
-    st.success("✅ Database connected successfully.")
+# --- Routing sederhana ke masing-masing page ---
+if page == "Benchmark Form":
+    st.switch_page("pages/01_Benchmark_Form.py")
+elif page == "Benchmark Dashboard":
+    st.switch_page("pages/02_Benchmark_Dashboard.py")
+elif page == "Talent Insights":
+    st.switch_page("pages/03_Talent_Insights.py")
