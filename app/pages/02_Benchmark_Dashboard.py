@@ -1,19 +1,34 @@
 import streamlit as st
-from components.db_utils import run_query
-from components.visual_utils import plot_distribution, plot_tgv_summary
+import pandas as pd
+from supabase import create_client, Client
 
-st.title("📈 Step 2: Benchmark Dashboard")
+# --- Connect to Supabase ---
+url = st.secrets["supabase"]["url"]
+key = st.secrets["supabase"]["key"]
+supabase: Client = create_client(url, key)
 
-if "job_vacancy_id" not in st.session_state:
-    st.warning("Please define a benchmark role in Step 1 first.")
-else:
-    job_vacancy_id = st.session_state["job_vacancy_id"]
-    df = run_query("app\queries/step2_final_output.sql", {"job_vacancy_id": job_vacancy_id})
+st.title("📊 Benchmark Dashboard - Talent Match")
 
-    st.subheader("Match Rate Overview")
-    st.plotly_chart(plot_distribution(df), use_container_width=True)
+# --- Input parameter ---
+job_vacancy_id = st.text_input("Masukkan Job Vacancy ID:", "J001")
 
-    st.subheader("TGV Performance Summary")
-    st.plotly_chart(plot_tgv_summary(df), use_container_width=True)
+if st.button("🚀 Jalankan Matching Analysis"):
+    with st.spinner("Menjalankan analisis..."):
+        try:
+            response = supabase.rpc("get_talent_match", {"job_vacancy_id": job_vacancy_id}).execute()
+            df = pd.DataFrame(response.data)
 
-    st.dataframe(df.head(50))
+            if not df.empty:
+                st.success(f"✅ Ditemukan {len(df)} kandidat untuk {job_vacancy_id}")
+                st.dataframe(df)
+
+                # --- Optional: Visualisasi ---
+                st.subheader("📈 Distribusi Final Match Rate")
+                st.bar_chart(df["final_match_rate"])
+
+                st.subheader("🏆 Top 10 Kandidat")
+                st.table(df.head(10))
+            else:
+                st.warning("⚠️ Tidak ada hasil ditemukan untuk Job Vacancy ID tersebut.")
+        except Exception as e:
+            st.error(f"❌ Terjadi kesalahan saat mengambil data: {e}")
